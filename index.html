@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Diagram Builder</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://flowchart.js.org/flowchart-latest.js"></script>
+    <!-- <script src="../release/flowchart.min.js"></script> -->
+    <script src="js/builder.js"></script>
+</head>
+<body>
+    <div>
+        <textarea id="code" style="width: 100%;" rows="11">
+            st=>start: Início
+            e=>end: Fim
+            op1=>operation: Test
+
+            st->op1
+            op1->e
+        </textarea>
+    </div>
+    <div>
+        <button id="run" type="button">Run</button>
+    </div>
+    <div id="canvas"></div>
+</body>
+</html>
