@@ -42,6 +42,7 @@ function build() {
         'scale': 1,
         'flowstate': {
             'success': {'fill': 'green'},
+            'fail': {'fill': 'red'},
         }
     });
 }
@@ -84,6 +85,48 @@ function runItem(item) {
         runItem(next);
     } else {
         build();
+    }
+}
+
+function fail(item) {
+    if (diagram[item].itemName === 'op1') {
+        diagram[item].style = 'fail';
+        build();
+    } else {
+        diagram[item].style = 'success';
+        let next = item;
+        if (item < diagram.length - 1) {
+            if (diagram[next].itemType === 'condition') {
+                diagram[next].style = 'success';
+                const auxItemName = diagram[next].itemName;
+                next++;
+
+                while (diagram[next].parent) {
+                    if (diagram[next].parent.indexOf(auxItemName + '(yes') >= 0) {
+                        diagram[next].style = 'success';
+                        break;
+                    } else {
+                        next++;
+                    }
+                }
+            } else {
+                next ++;
+            }
+
+            if (diagram[next].next) {
+                for (let i = 1; i < diagram.length; i++) {
+                    if (diagram[i].itemName === diagram[next].next) {
+                        next = i;
+                        break;
+                    }
+                }
+            }
+
+            build();
+            fail(next);
+        } else {
+            build();
+        }
     }
 }
 
