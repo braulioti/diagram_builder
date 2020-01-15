@@ -1,11 +1,11 @@
 window.onload = function () {
     var btn = document.getElementById("run"),
-        cd = document.getElementById("code"),
         chart;
+    var code = 'st=>start: Início\n' +
+        'e=>end: Fim\n' +
+        'st->e';
 
     (btn.onclick = function () {
-        var code = cd.value;
-
         if (chart) {
             chart.clean();
         }
@@ -31,14 +31,5 @@ window.onload = function () {
             'arrow-end': 'block',
             'scale': 1
         });
-
-        $('[id^=sub1]').click(function () {
-            alert('info here');
-        });
     })();
-
 };
-
-function myFunction(event, node) {
-    console.log("You just clicked this node:", node);
-}
