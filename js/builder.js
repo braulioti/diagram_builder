@@ -1,13 +1,16 @@
 var diagram = [
-    { itemName: 'st', itemType: 'start', description: 'Start', nextPos: null },
-    { itemName: 'op1', itemType: 'operation', description: 'Operation', nextPos: 'right' },
-    { itemName: 'cond1', itemType: 'condition', description: 'Is True?', nextPos: null },
-    { itemName: 'op2', itemType: 'operation', description: 'Operation 2', nextPos: null, parent: 'cond1(yes, right)', next: 'cond2' },
-    { itemName: 'op3', itemType: 'operation', description: 'Operation 3', nextPos: null, parent: 'cond1(no)'},
-    { itemName: 'cond2', itemType: 'condition', description: 'Is True 2?', nextPos: null },
-    { itemName: 'op4', itemType: 'operation', description: 'Operation 4', nextPos: null, parent: 'cond2(yes, right)', next: 'e' },
-    { itemName: 'op5', itemType: 'operation', description: 'Operation 5', nextPos: null, parent: 'cond2(no)'},
-    { itemName: 'e', itemType: 'end', description: 'End', next: null },
+    { itemName: 'st', itemType: 'start', description: 'Start', nextPos: null, style: null },
+    { itemName: 'op1', itemType: 'operation', description: 'Operation', nextPos: 'right', style: null },
+    { itemName: 'cond1', itemType: 'condition', description: 'Is True?', nextPos: null, style: null },
+    { itemName: 'op2', itemType: 'operation', description: 'Operation 2', nextPos: null, parent: 'cond1(yes, right)', next: 'cond2', style: null },
+    { itemName: 'op3', itemType: 'operation', description: 'Operation 3', nextPos: null, parent: 'cond1(no)', style: null},
+    { itemName: 'cond2', itemType: 'condition', description: 'Is True 2?', nextPos: null, style: null },
+    { itemName: 'op4', itemType: 'operation', description: 'Operation 4', nextPos: null, parent: 'cond2(yes, right)', next: 'cond3', style: null },
+    { itemName: 'op5', itemType: 'operation', description: 'Operation 5', nextPos: null, parent: 'cond2(no)', style: null},
+    { itemName: 'cond3', itemType: 'condition', description: 'Is True 3?', nextPos: null, style: null },
+    { itemName: 'op6', itemType: 'operation', description: 'Operation 6', nextPos: null, parent: 'cond3(yes, right)', next: 'e', style: null },
+    { itemName: 'op7', itemType: 'operation', description: 'Operation 7', nextPos: null, parent: 'cond3(no)', style: null},
+    { itemName: 'e', itemType: 'end', description: 'End', next: null, style: null },
 ];
 
 var chart;
@@ -36,31 +39,80 @@ function build() {
         'yes-text': 'Yes',
         'no-text': 'No',
         'arrow-end': 'block',
-        'scale': 1
+        'scale': 1,
+        'flowstate': {
+            'success': {'fill': 'green'},
+        }
     });
+}
+
+function run() {
+    runItem(0);
+}
+
+function runItem(item) {
+    diagram[item].style = 'success';
+    let next = item;
+    if (item < diagram.length - 1) {
+        if (diagram[next].itemType === 'condition') {
+            diagram[next].style = 'success';
+            const auxItemName = diagram[next].itemName;
+            next++;
+
+            while (diagram[next].parent) {
+                if (diagram[next].parent.indexOf(auxItemName + '(yes') >= 0) {
+                    diagram[next].style = 'success';
+                    break;
+                } else {
+                    next++;
+                }
+            }
+        } else {
+            next ++;
+        }
+
+        if (diagram[next].next) {
+            for (let i = 1; i < diagram.length; i++) {
+                if (diagram[i].itemName === diagram[next].next) {
+                    next = i;
+                    break;
+                }
+            }
+        }
+
+        build();
+        runItem(next);
+    } else {
+        build();
+    }
 }
 
 function buildCode() {
     let aux = '';
 
     diagram.forEach(item => {
-        aux = aux + item.itemName + '=>' + item.itemType + ': ' + item.description + '\n';
+        aux = aux + item.itemName + '=>' + item.itemType + ': ' + item.description;
+        if (item.style) {
+            aux = aux + '|' + item.style;
+        }
+        aux = aux + '\n'
     });
 
     for (let i = 1; i < diagram.length; i++) {
-        if(diagram[i].parent) {
+        if (diagram[i].parent) {
             aux = aux + diagram[i].parent + '->' + diagram[i].itemName + '\n';
         } else {
-            if (diagram[i-1].nextPos) {
-                aux = aux + diagram[i-1].itemName + '(' + diagram[i-1].nextPos + ')->' + diagram[i].itemName + '\n';
+            if (diagram[i - 1].nextPos) {
+                aux = aux + diagram[i - 1].itemName + '(' + diagram[i - 1].nextPos + ')->' + diagram[i].itemName + '\n';
             } else {
-                aux = aux + diagram[i-1].itemName + '->' + diagram[i].itemName + '\n';
+                aux = aux + diagram[i - 1].itemName + '->' + diagram[i].itemName + '\n';
             }
         }
 
-        if(diagram[i].next) {
+        if (diagram[i].next) {
             aux = aux + diagram[i].itemName + '->' + diagram[i].next + '\n';
         }
     }
+
     return aux;
 }
